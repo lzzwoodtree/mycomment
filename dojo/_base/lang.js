@@ -505,7 +505,7 @@ define(["./kernel", "../has", "../sniff"], function(dojo, has){
 				// generic objects
 				r = src.constructor ? new src.constructor() : {};
 			}
-			return lang._mixin(r, src, lang.clone);
+			return lang._mixin(r, src, lang.clone);//
 		},
 
 
