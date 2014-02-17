@@ -1,0 +1,8 @@
+dojo/request/xhr;
+dojo/request/util;
+
+dojo/ready;
+dojo/domReady;
+dojo/Evented;
+dojo/on;
+dojo/aspect;
