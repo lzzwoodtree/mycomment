@@ -8,5 +8,3 @@ dojo/on;
 dojo/aspect;
 
 dojo/_base/lang.js
-
-branch dev
