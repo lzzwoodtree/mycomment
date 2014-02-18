@@ -6,3 +6,5 @@ dojo/domReady;
 dojo/Evented;
 dojo/on;
 dojo/aspect;
+
+dojo/_base/lang.js
