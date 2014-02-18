@@ -7,6 +7,7 @@ define(["./kernel", "../has", "./lang"], function(dojo, has, lang){
 
 	function err(msg, cls){ throw new Error("declare" + (cls ? " " + cls : "") + ": " + msg); }
 
+	// 生成函数查询链
 	// C3 Method Resolution Order (see http://www.python.org/download/releases/2.3/mro/)
 	function c3mro(bases, className){
 		var result = [], roots = [{cls: 0, refs: []}], nameMap = {}, clsCount = 1,

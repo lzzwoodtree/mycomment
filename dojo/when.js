@@ -36,13 +36,15 @@ define([
 		var nativePromise = receivedPromise && valueOrPromise instanceof Promise;
 
 		if(!receivedPromise){
-			if(arguments.length > 1){
+			if(arguments.length > 1){// 有callback直接调用
 				return callback ? callback(valueOrPromise) : valueOrPromise;
-			}else{
+			}else{// 最终返回一个promise对象
 				return new Deferred().resolve(valueOrPromise);
 			}
 		}else if(!nativePromise){
 			var deferred = new Deferred(valueOrPromise.cancel);
+			// 假设valueOrPromise为PromiseB类型，该句主要目的为：当PromiseBsuccess后会触发deferred的resolve方法，
+			// 随即会执行callback
 			valueOrPromise.then(deferred.resolve, deferred.reject, deferred.progress);
 			valueOrPromise = deferred.promise;
 		}
