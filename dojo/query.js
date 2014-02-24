@@ -48,7 +48,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 		// o: Object?
 		//		an optional context for f
 		return function(){
-			this.forEach(loopBody(f, arguments, o));
+			this.forEach(loopBody(f, arguments, o)); // 将o.f包装成o.forEach(o.f);
 			return this;	// Object
 		};
 	};
@@ -175,7 +175,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 		//		|		.at(1, 3, 8) // get a subset
 		//		|			.style("padding", "5px")
 		//		|			.forEach(console.log);
-		var isNew = this instanceof nl && has("array-extensible");
+		var isNew = this instanceof nl && has("array-extensible"); // 使用nl.call(this,...)时，this不一定是nl实例
 		if(typeof array == "number"){
 			array = Array(array);
 		}
@@ -197,6 +197,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 		}
 		// called without new operator, use a real array and copy prototype properties,
 		// this is slower and exists for back-compat. Should be removed in 2.0.
+		// NodeList被当做普通函数调用时，将nl的原型混入
 		lang._mixin(nodeArray, nlp);
 		nodeArray._NodeListCtor = function(array){
 			// call without new operator to preserve back-compat behavior
@@ -225,6 +226,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 		// CANNOT apply ._stash()/end() to splice since it currently modifies
 		// the existing this array -- it would break backward compatibility if we copy the array before
 		// the splice so that we can use .end(). So only doing the stash option to this._wrap for slice.
+		// 保证nl.slice返回一个nl类型，且可以使用end方法
 		nlp[name] = function(){ return this._wrap(f.apply(this, arguments), name == "slice" ? this : null); };
 	});
 	// concat should be here but some browsers with native NodeList have problems with it
@@ -232,7 +234,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 	// add array.js redirectors
 	forEach(["indexOf", "lastIndexOf", "every", "some"], function(name){
 		var f = array[name];
-		nlp[name] = function(){ return f.apply(dojo, [this].concat(aps.call(arguments, 0))); };
+		nlp[name] = function(){ return f.apply(dojo, /*作为nlp[name]的参数*/[this].concat(aps.call(arguments, 0))); };
 	});
 
 	lang.extend(NodeList, {
