@@ -178,7 +178,7 @@ return declare("dojo.Stateful", null, {
 						}
 					}
 				};
-				notify(callbacks['_' + name]);
+				notify(callbacks['_' + name] /*为监控name的函数数组*/);
 				if(!ignoreCatchall){
 					notify(callbacks["*"]); // the catch-all
 				}
@@ -195,7 +195,7 @@ return declare("dojo.Stateful", null, {
 		if(typeof propertyCallbacks !== "object"){
 			propertyCallbacks = callbacks[name] = [];
 		}
-		propertyCallbacks.push(callback);
+		propertyCallbacks.push(callback); // 支持链式调用
 
 		// TODO: Remove unwatch in 2.0
 		var handle = {};

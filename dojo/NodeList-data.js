@@ -15,7 +15,7 @@ define([
 	var NodeList = query.NodeList;
 
 	var dataCache = {}, x = 0, dataattr = "data-dojo-dataid",
-		dopid = function(node){
+		dopid = function(node){ // 从传入的node中获取data-dojo-dataid属性
 			// summary:
 			//		Return a uniqueish ID for the passed node reference
 			var pid = attr.get(node, dataattr);
@@ -89,7 +89,7 @@ define([
 		}
 	};
 
-	NodeList._gcNodeData = dojo._gcNodeData = function(){
+	NodeList._gcNodeData = dojo._gcNodeData = function(){ // 回收不存在的dom所占用的dataCahche空间
 		// summary:
 		//		super expensive: GC all data in the data for nodes that no longer exist in the dom.
 		// description:

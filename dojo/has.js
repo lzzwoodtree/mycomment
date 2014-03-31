@@ -31,6 +31,19 @@ define(["require", "module"], function(require, module){
 			element = doc && doc.createElement("DiV"),
 			cache = (module.config && module.config()) || {};
 
+			/* dojo.js文件中的has定义
+				has = req.has = function(name){
+					return isFunction(hasCache[name]) ? (hasCache[name] = hasCache[name](global, doc, element)) : hasCache[name];
+				},
+
+				hasCache = has.cache = defaultConfig.hasCache;
+
+				has.add = function(name, test, now, force){
+					(hasCache[name]===undefined || force) && (hasCache[name] = test);
+					return now && has(name);
+				};
+			*/
+
 		has = function(name){
 			// summary:
 			//		Return the current value of the named feature.
@@ -81,7 +94,8 @@ define(["require", "module"], function(require, module){
 			//	|		// el == the generic element. a `has` element.
 			//	|		return false; // fake test, byid-when-form-has-name-matching-an-id is slightly longer
 			//	|	});
-
+			
+			// 前一部分为真才会进行下一部分
 			(typeof cache[name]=="undefined" || force) && (cache[name]= test);
 			return now && has(name);
 		};

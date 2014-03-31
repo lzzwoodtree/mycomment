@@ -8,3 +8,6 @@ dojo/on;
 dojo/aspect;
 
 dojo/_base/lang.js
+dojo/when
+dojo/query
+dojo/NodeList-data

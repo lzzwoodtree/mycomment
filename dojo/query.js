@@ -3,6 +3,12 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 
 	"use strict";
 
+	// 第一部分为NodeList，第二部分为query
+	// 定义辅助函数
+	// 定义NodeList函数，然后将数组的方法混入到np中；再然后定义nl的特有方法：_stash on end concat map forEach filter instantiate at
+	
+	
+	
 	has.add("array-extensible", function(){
 		// test to see if we can extend an array (not supported in old IE)
 		return lang.delegate([], {length: 1}).length == 1 && !has("bug-for-in-skips-shadowed");
@@ -10,6 +16,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 	
 	var ap = Array.prototype, aps = ap.slice, apc = ap.concat, forEach = array.forEach;
 
+	// 将一个数组伪装成NodeList对象
 	var tnl = function(/*Array*/ a, /*dojo/NodeList?*/ parent, /*Function?*/ NodeListCtor){
 		// summary:
 		//		decorate an array to make it look like a `dojo/NodeList`.
@@ -27,6 +34,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 		return parent ? nodeList._stash(parent) : nodeList;
 	};
 
+	// 循环体
 	var loopBody = function(f, a, o){
 		a = [0].concat(aps.call(a, 0));
 		o = o || dojo.global;
@@ -48,7 +56,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 		// o: Object?
 		//		an optional context for f
 		return function(){
-			this.forEach(loopBody(f, arguments, o));
+			this.forEach(loopBody(f, arguments, o)); // 将o.f包装成this.forEach(o.f);
 			return this;	// Object
 		};
 	};
@@ -97,7 +105,10 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 			return this;	// self
 		};
 	};
-
+	
+	// 1、判断是否当做构造函数使用；将arguments混入target
+	// 2、是则target为this，返回，
+	// 3、否target = [], 将NodeList原型的方法混入target，加入_NodeListCtor，返回
 	var NodeList = function(array){
 		// summary:
 		//		Array-like object which adds syntactic
@@ -175,7 +186,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 		//		|		.at(1, 3, 8) // get a subset
 		//		|			.style("padding", "5px")
 		//		|			.forEach(console.log);
-		var isNew = this instanceof nl && has("array-extensible");
+		var isNew = this instanceof nl && has("array-extensible"); // 使用nl.call(this,...)时，this不一定是nl实例
 		if(typeof array == "number"){
 			array = Array(array);
 		}
@@ -197,6 +208,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 		}
 		// called without new operator, use a real array and copy prototype properties,
 		// this is slower and exists for back-compat. Should be removed in 2.0.
+		// NodeList被当做普通函数调用时，将nl的原型混入
 		lang._mixin(nodeArray, nlp);
 		nodeArray._NodeListCtor = function(array){
 			// call without new operator to preserve back-compat behavior
@@ -225,6 +237,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 		// CANNOT apply ._stash()/end() to splice since it currently modifies
 		// the existing this array -- it would break backward compatibility if we copy the array before
 		// the splice so that we can use .end(). So only doing the stash option to this._wrap for slice.
+		// 保证nl.slice返回一个nl类型，且可以使用end方法
 		nlp[name] = function(){ return this._wrap(f.apply(this, arguments), name == "slice" ? this : null); };
 	});
 	// concat should be here but some browsers with native NodeList have problems with it
@@ -232,7 +245,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 	// add array.js redirectors
 	forEach(["indexOf", "lastIndexOf", "every", "some"], function(name){
 		var f = array[name];
-		nlp[name] = function(){ return f.apply(dojo, [this].concat(aps.call(arguments, 0))); };
+		nlp[name] = function(){ return f.apply(dojo, /*作为nlp[name]的参数*/[this].concat(aps.call(arguments, 0))); };
 	});
 
 	lang.extend(NodeList, {
@@ -266,7 +279,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 			//	|
 			//
 			this._parent = parent;
-			return this; // dojo/NodeList
+			return this; // dojo/NodeList // 链式调用
 		},
 
 		on: function(eventName, listener){
@@ -459,10 +472,11 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 			// items passed in as parameters must be converted to raw Arrays
 			// and then the concatenation result may be re-_wrap()ed as a Dojo NodeList.
 
-			var t = aps.call(this, 0),
+			var t = aps.call(this, 0), // 将nodelist转换为数组
 				m = array.map(arguments, function(a){
 					return aps.call(a, 0);
 				});
+			// 链接
 			return this._wrap(apc.apply(t, m), this);	// dojo/NodeList
 		},
 
@@ -555,7 +569,7 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 			var t = new this._NodeListCtor(0);
 			forEach(arguments, function(i){
 				if(i < 0){ i = this.length + i; }
-				if(this[i]){ t.push(this[i]); }
+				if(this[i]){ t.push(this[i]); }// 定位arguments中idx并放入t中
 			}, this);
 			return t._stash(this); // dojo/NodeList
 		}
@@ -567,13 +581,13 @@ define(["./_base/kernel", "./has", "./dom", "./on", "./_base/array", "./_base/la
 			//		Returns nodes which match the given CSS selector, searching the
 			//		entire document by default but optionally taking a node to scope
 			//		the search by. Returns an instance of NodeList.
-			if(typeof root == "string"){
+			if(typeof root == "string"){ // 根节点未找到返回空nl
 				root = dom.byId(root);
 				if(!root){
 					return new NodeList([]);
 				}
 			}
-			var results = typeof query == "string" ? engine(query, root) : query ? (query.end && query.on) ? query : [query] : [];
+			var results = typeof query == "string" ? engine(query, root) : （query ? ((query.end && query.on) ? query : [query]) : []);
 			if(results.end && results.on){
 				// already wrapped
 				return results;

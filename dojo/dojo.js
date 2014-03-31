@@ -113,7 +113,7 @@
 			return "_" + uidSeed++;
 		},
 
-		// FIXME: how to doc window.require() api
+		// FIXME: how to doc window.require() api require函数
 
 		// this will be the global require function; define it immediately so we can start hanging things off of it
 		req = function(
